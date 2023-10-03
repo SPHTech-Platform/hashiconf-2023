@@ -1,0 +1,41 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${nginx_hashicups_service_name}
+  namespace: ${frontend_namespace}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: ${nginx_hashicups_service_name}
+      app: ${nginx_hashicups_service_name}
+  template:
+    metadata:
+      labels:
+        service: ${nginx_hashicups_service_name}
+        app: ${nginx_hashicups_service_name}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9102"
+        consul.hashicorp.com/connect-inject: "true"
+        consul.hashicorp.com/connect-service-upstreams: "${public_api_upstream_consul_address},${frontend_upstream_consul_address}"
+    spec:
+      serviceAccountName: ${nginx_hashicups_service_name}
+      volumes:
+      - name: config
+        configMap:
+          name: nginx-configmap
+          items:
+          - key: config
+            path: default.conf
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nginx/conf.d
+              readOnly: true

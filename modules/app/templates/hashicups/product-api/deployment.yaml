@@ -1,0 +1,52 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${product_api_hashicups_service_name}
+  namespace: ${frontend_namespace}
+  labels:
+    app: ${product_api_hashicups_service_name}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${product_api_hashicups_service_name}
+  template:
+    metadata:
+      labels:
+        app: ${product_api_hashicups_service_name}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9102"
+        consul.hashicorp.com/connect-inject: "true"
+        consul.hashicorp.com/connect-service-upstreams: ${postgres_db_upstream_consul_address}
+    spec:
+      serviceAccountName: ${product_api_hashicups_service_name}
+      volumes:
+      - name: config
+        configMap:
+          name: db-configmap
+          items:
+          - key: config
+            path: conf.json
+      containers:
+        - name: product-api
+          image: hashicorpdemoapp/product-api:v0.0.21
+          ports:
+            - containerPort: 9090
+            - containerPort: 9103
+          env:
+            - name: "CONFIG_FILE"
+              value: "/config/conf.json"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 9090
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+            periodSeconds: 10
+            failureThreshold: 30
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true

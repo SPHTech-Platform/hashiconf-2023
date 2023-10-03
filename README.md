@@ -12,6 +12,8 @@ A few things to note:
 - We do not accept pull requests.
 - This code is **not production ready** and only meant to demonstrate our proof of concept.
 
+> Note: There is some remnants of Hashicup which we ran out of time getting working. Please disregard them.
+
 ## Pre-requisites
 
 - Hashicorp Cloud Platform (HCP) account

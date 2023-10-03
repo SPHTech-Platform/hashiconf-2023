@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${backend_service_name}
+  namespace: ${backend_namespace}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: ${backend_service_name}
+      app: ${backend_service_name}
+  template:
+    metadata:
+      labels:
+        service: ${backend_service_name}
+        app: ${backend_service_name}
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9102'
+        consul.hashicorp.com/connect-inject: 'true'
+    spec:
+      serviceAccountName: ${backend_service_name}
+      containers:
+        - name: ${backend_service_name}
+          image: nicholasjackson/fake-service:v0.26.0
+          ports:
+            - containerPort: 9090
+          env:
+            - name: 'LISTEN_ADDR'
+              value: '0.0.0.0:9090'
+            - name: 'NAME'
+              value: 'backend'
+            - name: 'MESSAGE'
+              value: 'backend response'
+            - name: 'SERVER_TYPE'
+              value: 'http'
+            - name: 'HTTP_CLIENT_APPEND_REQUEST'
+              value: 'true'

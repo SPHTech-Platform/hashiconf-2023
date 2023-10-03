@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${nginx_hashicups_service_name}
+  namespace: ${frontend_namespace}
+  labels:
+    app: ${nginx_hashicups_service_name}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: ${nginx_hashicups_service_name}

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${frontend_hashicups_service_name}
+  namespace: ${frontend_namespace}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: ${frontend_hashicups_service_name}
+      app: ${frontend_hashicups_service_name}
+  template:
+    metadata:
+      labels:
+        service: ${frontend_hashicups_service_name}
+        app: ${frontend_hashicups_service_name}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9102"
+        consul.hashicorp.com/connect-inject: "true"
+    spec:
+      serviceAccountName: ${frontend_hashicups_service_name}
+      containers:
+        - name: frontend
+          image: hashicorpdemoapp/frontend:v1.0.3
+          imagePullPolicy: Always
+          env:
+            - name: NEXT_PUBLIC_PUBLIC_API_URL
+              value: "/"
+          ports:
+            - containerPort: 3000

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${public_api_hashicups_service_name}
+  namespace: ${frontend_namespace}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: ${public_api_hashicups_service_name}
+      app: ${public_api_hashicups_service_name}
+  template:
+    metadata:
+      labels:
+        service: ${public_api_hashicups_service_name}
+        app: ${public_api_hashicups_service_name}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9102"
+        consul.hashicorp.com/connect-inject: "true"
+        consul.hashicorp.com/connect-service-upstreams: "${product_api_upstream_consul_address},${payments_upstream_consul_address}"
+    spec:
+      serviceAccountName: ${public_api_hashicups_service_name}
+      containers:
+        - name: ${public_api_hashicups_service_name}
+          image: hashicorpdemoapp/public-api:v0.0.6
+          ports:
+            - containerPort: 8080
+          env:
+            - name: BIND_ADDRESS
+              value: ":8080"
+            - name: PRODUCT_API_URI
+              value: "http://product-api:9090"
+            - name: PAYMENT_API_URI
+              value: "http://payments:1800"

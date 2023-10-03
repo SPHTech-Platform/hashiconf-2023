@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${frontend_service_name}
+  namespace: ${frontend_namespace}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: ${frontend_service_name}
+      app: ${frontend_service_name}
+  template:
+    metadata:
+      labels:
+        service: ${frontend_service_name}
+        app: ${frontend_service_name}
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9102'
+        consul.hashicorp.com/connect-inject: 'true'
+        consul.hashicorp.com/transparent-proxy: 'false'
+        consul.hashicorp.com/connect-service-upstreams: ${upstream_consul_address}
+    spec:
+      serviceAccountName: ${frontend_service_name}
+      containers:
+        - name: ${frontend_service_name}
+          image: nicholasjackson/fake-service:v0.26.0
+          ports:
+            - containerPort: 9091
+          env:
+            - name: 'LISTEN_ADDR'
+              value: '0.0.0.0:9091'
+            - name: 'UPSTREAM_URIS'
+              value: 'http://localhost:9090'
+            - name: 'NAME'
+              value: 'frontend'
+            - name: 'MESSAGE'
+              value: 'frontend response'
+            - name: 'SERVER_TYPE'
+              value: 'http'
+            - name: 'HTTP_CLIENT_APPEND_REQUEST'
+              value: 'true'
+            - name: 'HTTP_CLIENT_REQUEST_TIMEOUT'
+              value: '2s'

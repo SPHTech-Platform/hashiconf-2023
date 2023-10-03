@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${payments_hashicups_service_name}
+  namespace: ${frontend_namespace}
+  labels:
+    app: ${payments_hashicups_service_name}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${payments_hashicups_service_name}
+  template:
+    metadata:
+      labels:
+        app: ${payments_hashicups_service_name}
+      annotations:
+        consul.hashicorp.com/connect-inject: "true"
+    spec:
+      serviceAccountName: ${payments_hashicups_service_name}
+      containers:
+        - name: payments
+          image: hashicorpdemoapp/payments:v0.0.16
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
