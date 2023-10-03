@@ -27,8 +27,8 @@ because many resources are created and combining into one giant module will caus
 issues with Terraform.
 
 - `base`
-- `admin_partiton`
-- `apps`
+- `admin_partition`
+- `app`
 
 Refer to the `examples` directory for how to use these modules.
 
@@ -41,3 +41,16 @@ The `base` module provisions the basics of our setup, including:
 - HCP Vault Cluster
 - RDS instance
 
+### `admin_partition` module
+
+The second module creates the following:
+
+- Admin Partitions and ACL
+- EKS cluster with Consul Data plane
+
+### `app` module
+
+The third and final module creates the following:
+
+- Applications for service to service communication
+- Vault database secrets engine configuration to RDS

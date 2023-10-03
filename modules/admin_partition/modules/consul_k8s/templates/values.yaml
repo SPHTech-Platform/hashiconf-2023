@@ -1,0 +1,61 @@
+global:
+  name: consul
+  enabled: false
+  logLevel: ${log_level}
+  datacenter: ${datacenter}
+  image: ${image}
+  adminPartitions:
+    enabled: ${admin_partition_enabled}
+    name: ${admin_partition}
+  acls:
+    manageSystemACLs: true
+    bootstrapToken:
+      ${indent(6, acl_bootstrap_token)}
+  tls:
+    enabled: true
+  enableConsulNamespaces: true
+  extraLabels: ${extra_labels}
+externalServers:
+  enabled: true
+  hosts: ${external_servers}
+  httpsPort: 443
+  useSystemRoots: true
+  k8sAuthMethodHost: ${k8s_auth_host}
+server:
+  enabled: false
+connectInject:
+  enabled: true
+  transparentProxy:
+    defaultEnabled: false
+  envoyExtraArgs: ${envoy_extra_args}
+dns:
+  enabled: ${dns_enabled}
+  enableRedirection: ${dns_enable_redirection}
+  clusterIP: ${dns_cluster_ip}
+ingressGateways:
+  enabled: ${ingress_gateway_enabled}
+  defaults:
+    replicas: ${ingress_gateway_replicas}
+  gateways:
+    - name: ingress-gateway
+      service:
+        type: ${ingress_gateway_service_type}
+        ports: ${ingress_gateway_service_ports}
+        annotations: |
+          ${indent(10, ingress_gateway_annotations)}
+meshGateway:
+  enabled: ${mesh_gateway_enabled}
+  replicas: ${mesh_gateway_replicas}
+  wanAddress:
+    source: ${mesh_gateway_wan_address_source}
+    port: ${mesh_gateway_wan_address_port}
+  service:
+    type: ${mesh_gateway_service_type}
+    port: ${mesh_gateway_service_port}
+    annotations: |
+      ${indent(6, mesh_gateway_annotations)}
+  containerPort: ${mesh_gateway_container_port}
+terminatingGateways:
+  enabled: true
+  gateways:
+    - name: terminating-gateway
