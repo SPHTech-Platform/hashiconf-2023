@@ -8,19 +8,13 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "~> 2.23"
     }
-    helm = {
-      source  = "hashicorp/helm"
-      version = "~> 2.11"
-    }
     consul = {
       source  = "hashicorp/consul"
       version = "~> 2.18"
     }
-    terracurl = {
-      source  = "devops-rob/terracurl"
-      version = "~> 1.1.0"
+    vault = {
+      source  = "hashicorp/vault"
+      version = "~> 3.20"
     }
   }
-
-  # Backend configuration here
 }
