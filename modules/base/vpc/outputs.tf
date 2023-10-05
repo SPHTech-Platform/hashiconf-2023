@@ -22,3 +22,8 @@ output "database_subnet_group" {
   description = "Database Subnet group"
   value       = aws_db_subnet_group.database.id
 }
+
+output "private_route_table_ids" {
+  description = "List of IDs of private route tables"
+  value       = module.vpc.private_route_table_ids
+}

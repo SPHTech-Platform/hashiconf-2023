@@ -14,12 +14,8 @@ module "vpc" {
   private_subnets = [for k, v in local.azs : cidrsubnet(var.cidr, 8, k)]
   public_subnets  = [for k, v in local.azs : cidrsubnet(var.cidr, 8, k + 4)]
 
-  private_subnet_tags = {
-    "type" = "private"
-  }
-  public_subnet_tags = {
-    "type" = "public"
-  }
+  private_subnet_tags = local.private_subnet_tags
+  public_subnet_tags  = local.public_subnet_tags
 
   create_database_subnet_group  = false
   manage_default_network_acl    = true
@@ -42,6 +38,19 @@ module "vpc" {
 
 locals {
   azs = slice(data.aws_availability_zones.available.names, 0, var.azs_count)
+
+  default_private_subnet_tags = {
+    "type" = "private"
+  }
+  default_public_subnet_tags = {
+    "type" = "public"
+  }
+  public_subnet_tags = var.add_subnet_autodiscovery_annotations ? merge(local.default_public_subnet_tags, {
+    "kubernetes.io/role/elb" = "1"
+  }) : local.default_public_subnet_tags
+  private_subnet_tags = var.add_subnet_autodiscovery_annotations ? merge(local.default_private_subnet_tags, {
+    "kubernetes.io/role/internal-elb" = "1"
+  }) : local.default_private_subnet_tags
 }
 
 

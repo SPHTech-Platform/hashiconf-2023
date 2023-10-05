@@ -162,6 +162,42 @@ resource "consul_config_entry" "a_intention_ingress_gateway_to_rds_aurora" {
         Partition  = local.a_admin_partition_name
         Precedence = 10
         Type       = "consul"
+      },
+      {
+        Action     = "allow"
+        Name       = consul_config_entry.tgw_ingress_gateway.name
+        Partition  = local.tgw_admin_partition_name
+        Precedence = 9
+        Type       = "consul"
+      },
+    ]
+  })
+}
+
+resource "consul_config_entry" "export_rds_a" {
+  kind      = "exported-services"
+  name      = local.a_admin_partition_name
+  partition = local.a_admin_partition_name
+
+  config_json = jsonencode({
+    Services = [
+      {
+        Name      = consul_service.rds_a.name
+        Namespace = "default"
+        Consumers = [
+          {
+            Partition = local.tgw_admin_partition_name
+          },
+        ]
+      },
+      {
+        Name      = "mesh-gateway"
+        Namespace = "default"
+        Consumers = [
+          {
+            Partition = local.tgw_admin_partition_name
+          }
+        ]
       }
     ]
   })
