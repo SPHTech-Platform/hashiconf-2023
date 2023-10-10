@@ -173,7 +173,7 @@ resource "consul_config_entry" "hashicups_frontend_intentions" {
   partition = local.a_admin_partition_name
   namespace = var.a_eks_namespace
   name      = local.hashicups.frontend.app_vars.frontend_hashicups_service_name
-  
+
   config_json = jsonencode({
     Sources = [
       {

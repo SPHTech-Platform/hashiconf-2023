@@ -10,6 +10,8 @@ module "tgw_vpc" {
 
   name = var.tgw_name
   cidr = var.tgw_cidr
+
+  add_subnet_autodiscovery_annotations = true
 }
 
 module "tgw" {
@@ -27,6 +29,15 @@ module "tgw" {
 
   ram_allow_external_principals = true
   ram_principals                = [hcp_hvn.this.provider_account_id]
+
+  vpc_attachments = {
+    tgw_vpc = {
+      vpc_id       = module.tgw_vpc.vpc_id
+      subnet_ids   = module.tgw_vpc.private_subnets
+      dns_support  = true
+      ipv6_support = false
+    }
+  }
 }
 
 
@@ -52,4 +63,19 @@ resource "aws_ec2_tag" "hvn_attachment" {
   resource_id = hcp_aws_transit_gateway_attachment.this.provider_transit_gateway_attachment_id
   key         = "Name"
   value       = "hvn"
+}
+
+locals {
+  tgw_rouetable_to_tgw = { for pair in setproduct(module.tgw_vpc.private_route_table_ids, var.routeable_cidr) : join(";", pair) => {
+    route_table_id = pair[0]
+    cidr_block     = pair[1]
+  } }
+}
+
+resource "aws_route" "private_subnet_to_tgw" {
+  for_each = local.tgw_rouetable_to_tgw
+
+  route_table_id         = each.value.route_table_id
+  destination_cidr_block = each.value.cidr_block
+  transit_gateway_id     = module.tgw.ec2_transit_gateway_id
 }

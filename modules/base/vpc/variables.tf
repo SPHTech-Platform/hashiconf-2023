@@ -19,3 +19,9 @@ variable "azs_count" {
   type        = number
   default     = 3
 }
+
+variable "add_subnet_autodiscovery_annotations" {
+  description = "Add subnet autodiscovery annotations"
+  type        = bool
+  default     = false
+}
